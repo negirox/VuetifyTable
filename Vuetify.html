@@ -1,0 +1,219 @@
+<script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" type="text/css" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" type="text/css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/@mdi/font@3.x/css/materialdesignicons.min.css" type="text/css" rel="stylesheet" />
+<style>
+#dataTable .v-table tbody tr:not(:last-child) {
+    border-bottom: none;
+}
+#dataTable th{
+ font-size:16px;
+ color:white;
+ background-color:blue;
+ min-width:130px;
+}
+.v-data-table__wrapper{
+  border:1px solid;
+}
+</style>
+ <v-data-table
+        must-sort
+        :headers="headers"
+        :pagination.sync="pagination"
+        :rows-per-page-items="pagination.rowsPerPageItems"
+        :total-items="pagination.totalItems"
+        :loading="loading"
+        :items="items"
+        class="elevation-1"
+      >
+	  		  <template v-slot:item.qty1="props">
+            <v-text-field v-model="props.item.qty1"></v-text-field>
+          </template>
+          <template v-slot:item.qty2="props">
+		  <v-select autocomplete
+            :items="drpItems"
+			:label="props.item.qty2.name"
+			:value="props.item.qty2.age"
+			v-model="props.item.qty2.name"></v-select>  
+		
+           </template>  
+            
+          <template v-slot:item.qty3="props">
+		
+		
+           </template>  
+<div id="app">
+<div>
+  <v-app>
+    <v-main>
+      <v-container>
+	<!--  <v-data-table :headers="headers" :items="items" item-key="id" show-select>
+
+                <template v-slot:body="{ items }">
+                <tbody>
+                    <tr v-for="item in items" :key="item.id">
+                        <td>
+                            <v-checkbox :value="item.IsSelected" style="margin:0px;padding:0px"
+                                hide-details />
+                        </td>
+                        <td>{{ item }}</td>
+                        <td>
+                            <v-btn text icon x-small>
+                                Edit
+                            </v-btn>
+                        </td>
+                    </tr>
+                </tbody>
+                </template>
+         </v-data-table>-->
+        <v-data-table id="dataTable" dense
+          :headers="headers"
+          :items="items"
+		  :rows-per-page="itemsPerPage"
+		  :footer-props="footerProps"
+		  :loading="loading" loading-text="Loading... Please wait"
+		  item-key="id" show-select
+		  v-model="selecteditems"
+        >
+		    <template v-slot:body="{ items }">
+                <tbody>
+				    
+                    <tr v-for="item in items" :key="item.id">
+					    <td>
+						
+                            <v-checkbox v-model="selecteditems" :value="item" style="margin:0px;padding:0px" hide-details />
+                        </td>
+						  
+                        <td>
+                            <v-checkbox v-model="item.IsActive" style="margin:0px;padding:0px" hide-details />
+                        </td>
+                        <td>
+                            {{item.id}}
+                        </td>
+						    <td>
+                          {{item.description}}
+                        </td>
+                        
+						  
+                        <td>
+                            <v-select :items="drpItems" item-value="name" item-text="name" v-model="item.qty"></v-select>  
+                        </td>
+						  
+                        <td>
+                              <v-select :items="drpItems" item-value="name" item-text="name" v-model="item.qty2"></v-select>  
+                        </td>
+						  
+                        <td>
+                               <v-select :items="drpItems" item-value="name" item-text="name" v-model="item.qty3"></v-select>  
+                        </td>
+						  
+                      
+                    </tr>
+                </tbody>
+             </template>
+
+	   
+        </v-data-table>
+      </v-container>
+    </v-main>
+  </v-app>
+  </div>
+</div>
+
+<script>
+
+"use strict";
+
+var d = new Vue({
+  el: '#app',
+  vuetify: new Vuetify(),
+  data: function data() {
+    return {
+      items: [],
+      drpItems: [],
+      itemsPerPage: 5,
+      optionsLength: 6,
+	  loading: true,
+	  selecteditems:[],
+      footerProps: {
+        'items-per-page-options': [5,15,25,50,100]
+      },
+      headers: [
+	   {
+        text: 'Is Active',
+        value: "IsActive"
+      },{
+        text: 'ID',
+        value: 'id'
+      }, {
+        text: 'Description',
+        value: 'description'
+      },, {
+        text: 'QTY1',
+        value: 'qty1'
+      }, {
+        text: 'QTY2',
+        value: 'qty2'
+      }, {
+        text: 'Qty3',
+        value: 'qty3'
+      }],
+      customer: {
+        name: 'customer',
+        items: []
+      }
+    };
+  },
+  created: function created() {
+    this.initialize();
+    var self = this;
+
+    window.onresize = function (event) {
+      //self.updateTable();
+    };
+  },
+  methods: {
+    updateTable: function updateTable() {
+      var tableHeight = document.getElementById('dataTable').offsetHeight;
+      this.itemsPerPage = parseInt(tableHeight / 40);
+      if (this.customer.items.length < this.itemsPerPage) this.itemsPerPage = this.customer.items.length;
+
+      if (!this.footerProps['items-per-page-options'].includes(this.itemsPerPage)) {
+        if (this.footerProps['items-per-page-options'].length == this.optionsLength) {
+          this.footerProps['items-per-page-options'].unshift(this.itemsPerPage);
+        } else {
+          this.footerProps['items-per-page-options'].shift();
+          this.footerProps['items-per-page-options'].unshift(this.itemsPerPage);
+        }
+      }
+    },
+    initialize: function initialize() {
+	  console.time("load")
+	  var self=this;
+      for (var i = 0; i < 300; i++) {
+        this.drpItems.push({name:"mukesh" + i,age:i});
+      }
+
+      for (var i = 0; i < 400000; i++) {
+        var obj = {
+          id: i,
+          description: 'ABC',
+		  //IsSelected:false,
+		  IsActive:false,
+          qty1: 'text'+i,
+          qty2: {name:'mukesh14',age:14},
+          qty3: {name:'mukesh1',age:1}
+        };
+        //obj.drpItems = [];
+        this.customer.items.push(obj);
+	
+      } 
+      this.items = this.customer.items;
+	  console.timeEnd("load")
+	  setTimeout(function(){	self.loading=false;
+	  },3000);
+    }
+  }
+});
+</script>
